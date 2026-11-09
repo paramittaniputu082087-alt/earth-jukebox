@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth Jukebox — Ocean Edition</title>
+<style>
+:root{--navy:#061b2b;--deep:#092b40;--sea:#0d5264;--foam:#d9f6ef;--aqua:#69d9cc;--gold:#ffd58a}
+*{box-sizing:border-box}
+.skip-link{position:absolute;left:12px;top:-60px;background:#fff;color:#062433;padding:12px 16px;border-radius:8px;z-index:1000;font-weight:bold}.skip-link:focus{top:12px}
+button:focus-visible,input:focus-visible,a:focus-visible{outline:3px solid #ffd58a;outline-offset:4px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.access-tools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:14px 0}
+.access-note{border:1px solid rgba(153,222,220,.35);border-radius:12px;padding:13px;color:#d9f6ef;font-size:13px;line-height:1.6;margin-top:16px}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+body{margin:0;min-height:100vh;font-family:Arial,Helvetica,sans-serif;color:var(--foam);background:radial-gradient(ellipse at 50% 0%,#15536a 0%,#092b40 45%,#061523 100%);display:flex;justify-content:center;padding:28px 16px}
+main{width:min(900px,100%)}
+header{text-align:center;margin:8px 0 25px}
+.eyebrow{letter-spacing:3px;text-transform:uppercase;font-size:11px;color:var(--aqua);font-weight:bold}
+h1{font-size:clamp(30px,6vw,48px);margin:10px 0 6px;color:white;letter-spacing:.5px}
+.subtitle{margin:0;color:#b9d8d8;font-size:15px}
+.panel{background:rgba(3,21,34,.72);border:1px solid rgba(150,225,220,.22);border-radius:22px;padding:24px;box-shadow:0 18px 55px rgba(0,0,0,.25)}
+.now{text-align:center;padding:16px 12px 20px}
+.year{font-size:clamp(42px,9vw,68px);font-weight:700;color:white;line-height:1}
+.reading{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:13px;color:#b9d8d8;font-size:14px}
+.reading strong{color:var(--gold);font-size:18px}
+.visual{height:115px;display:flex;align-items:center;justify-content:center;gap:5px;margin:10px 0 22px;overflow:hidden}
+.bar{width:5px;height:12px;border-radius:5px;background:linear-gradient(to top,var(--sea),var(--aqua));opacity:.85;transform-origin:center;animation:wave 1.25s ease-in-out infinite alternate}
+.bar:nth-child(3n){animation-delay:.2s}.bar:nth-child(4n){animation-delay:.45s}.bar:nth-child(5n){animation-delay:.65s}
+@keyframes wave{from{transform:scaleY(.35)}to{transform:scaleY(4.3)}}
+.controls{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:4px 0 22px}
+button{border:0;border-radius:30px;padding:13px 23px;font-size:14px;font-weight:bold;cursor:pointer}
+.primary{background:var(--aqua);color:#052634}.secondary{background:#16475a;color:#e3f8f4;border:1px solid #397083}
+button:disabled{opacity:.45;cursor:not-allowed}
+.section-title{font-size:13px;letter-spacing:1.5px;text-transform:uppercase;color:var(--aqua);margin:20px 0 12px}
+.layers{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.layer{border:1px solid rgba(153,222,220,.24);border-radius:14px;padding:14px;background:rgba(14,66,82,.35)}
+.layer label{display:flex;gap:9px;align-items:center;font-weight:bold;color:white;font-size:14px;cursor:pointer}
+.layer p{font-size:12px;line-height:1.45;color:#aecbce;margin:8px 0 0}
+input[type=checkbox]{accent-color:var(--aqua);width:17px;height:17px}
+.scrub{margin-top:22px}
+.scrub-head{display:flex;justify-content:space-between;gap:12px;font-size:12px;color:#b9d8d8;margin-bottom:9px}
+input[type=range]{width:100%;accent-color:var(--aqua);cursor:pointer}
+.note{color:#b7d0d2;font-size:12px;line-height:1.6;margin:18px 2px 0}
+footer{text-align:center;color:#89aeb4;font-size:11px;margin:18px 0 4px}
+@media(max-width:620px){.panel{padding:17px}.layers{grid-template-columns:1fr}.layer{padding:12px}.visual{height:85px}}
+</style>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to main content</a>
+<main id="main-content">
+<header>
+  <div class="eyebrow">A data sonification experiment</div>
+  <h1>Earth Jukebox</h1>
+  <p class="subtitle">Ocean Edition · Hear the changing ocean</p>
+</header>
+<section class="panel">
+  <div class="now" aria-label="Current annual data point">
+    <div class="eyebrow">Now playing · annual ocean data</div>
+    <div class="year" id="year">2002</div>
+    <div class="reading">
+      <span>Temperature anomaly<br><strong id="anomaly">+0.48°C</strong></span>
+      <span>Mapped pitch<br><strong id="frequency">364 Hz</strong></span>
+    </div>
+    <p class="sr-only" id="dataDescription">Year 2002. Temperature anomaly plus 0.48 degrees Celsius. Mapped pitch 364 hertz.</p>
+  </div>
+  <div class="visual" id="visual" aria-hidden="true"></div>
+  <div class="controls" role="group" aria-label="Music playback controls">
+    <button class="primary" id="play" type="button">▶ Play Ocean Symphony</button>
+    <button class="secondary" id="pause" type="button" disabled>Ⅱ Pause</button>
+    <button class="secondary" id="stop" type="button" disabled>■ Stop</button>
+  </div>
+  <p id="playStatus" class="sr-only" role="status" aria-live="polite">Ready. 25 annual data points.</p>
+  <div class="access-tools"><button class="secondary" id="readData" type="button">🔊 Read current data aloud</button><button class="secondary" id="stopSpeech" type="button">Stop spoken description</button></div>
+
+  <h2 class="section-title">The three layers — play together</h2>
+  <div class="layers" role="group" aria-label="Choose which sound layers to hear">
+    <div class="layer">
+      <label><input type="checkbox" id="piano" checked> Piano melody</label>
+      <p>Each year's data becomes a piano-like note. Higher anomaly, higher pitch.</p>
+    </div>
+    <div class="layer">
+      <label><input type="checkbox" id="ocean" checked> Ocean atmosphere</label>
+      <p>Soft, flowing digital sound creates an ocean-like background.</p>
+    </div>
+    <div class="layer">
+      <label><input type="checkbox" id="rhythm" checked> Gentle rhythm</label>
+      <p>A low, soft pulse gives the sequence a steady heartbeat.</p>
+    </div>
+  </div>
+
+  <div class="scrub">
+    <div class="scrub-head"><label for="yearSlider">Explore the years</label><span id="position">1 of 25</span></div>
+    <input type="range" id="yearSlider" min="0" max="24" value="0" step="1" aria-label="Choose a year from 2002 to 2026">
+  </div>
+  <section class="access-note" aria-labelledby="access-title">
+    <h2 id="access-title">Accessible listening guide</h2>
+    <p>This experience supports keyboard navigation and screen readers. Use Tab to move between controls, Space or Enter to activate buttons, and the arrow keys to explore years. Select “Read current data aloud” to hear the year, temperature anomaly and mapped pitch spoken by your device. A screen reader can also read the same information on this page.</p>
+    <p><strong>What the sounds mean:</strong> Piano notes represent the mapped data pitch; the soft ocean-like sound is digitally generated ambience; the gentle pulse is a generated rhythm. These are not recordings of real ocean sounds.</p>
+  </section>
+  <p class="note"><strong>How to listen:</strong> All three layers are switched on by default. You can turn any layer off to hear the others separately. The piano notes use the supplied frequency mapping; the ocean atmosphere and rhythm are generated sounds, not recordings of the ocean.</p>
+</section>
+<footer>Earth Jukebox · Ocean Edition · Accessible Prototype V3</footer>
+</main>
+<script>
+const data = [
+[2002,0.48,364],[2003,0.51,373],[2004,0.45,355],[2005,0.47,361],[2006,0.46,358],
+[2007,0.38,334],[2008,0.36,328],[2009,0.50,370],[2010,0.49,367],[2011,0.42,346],
+[2012,0.45,355],[2013,0.48,364],[2014,0.57,391],[2015,0.74,442],[2016,0.76,448],
+[2017,0.67,421],[2018,0.65,415],[2019,0.77,451],[2020,0.72,436],[2021,0.64,412],
+[2022,0.69,427],[2023,1.02,526],[2024,1.05,535],[2025,1.03,529],[2026,0.98,514]
+];
+const $ = id => document.getElementById(id);
+const visual = $("visual");
+for(let i=0;i< fifty();i++){const b=document.createElement("span");b.className="bar";visual.appendChild(b)}
+function fifty(){return 50}
+let ctx=null, master=null, ambientGain=null, ambientSource=null, timer=null, index=0, playing=false;
+const activeNodes = new Set();
+function display(){
+  const [y,a,f]=data[index];
+  $("year").textContent=y;
+  $("anomaly").textContent="+"+a.toFixed(2)+"°C";
+  $("frequency").textContent=f+" Hz";
+  $("position").textContent=(index+1)+" of "+data.length;
+  $("yearSlider").value=index;
+  $("yearSlider").setAttribute("aria-valuetext", y+", temperature anomaly plus "+a.toFixed(2)+" degrees Celsius, mapped pitch "+f+" hertz");
+  $("dataDescription").textContent="Year "+y+". Temperature anomaly plus "+a.toFixed(2)+" degrees Celsius. Mapped pitch "+f+" hertz.";
+}
+function makeAudio(){
+  if(ctx) return;
+  ctx=new (window.AudioContext||window.webkitAudioContext)();
+  master=ctx.createGain(); master.gain.value=.72; master.connect(ctx.destination);
+}
+function track(node){activeNodes.add(node);node.onended=()=>activeNodes.delete(node)}
+function pianoNote(freq){
+  if(!$("piano").checked||!ctx)return;
+  const now=ctx.currentTime;
+  // Fundamental plus quiet harmonics create a soft, piano-like pluck.
+  [[1,0.72],[2,0.18],[3,0.07]].forEach(([mult,level])=>{
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type="sine"; osc.frequency.value=freq*mult;
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(level,now+0.012);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+0.58);
+    osc.connect(gain);gain.connect(master);track(osc);
+    osc.start(now);osc.stop(now+0.6);
+  });
+}
+function rhythmPulse(){
+  if(!$("rhythm").checked||!ctx)return;
+  const now=ctx.currentTime, osc=ctx.createOscillator(), gain=ctx.createGain();
+  osc.type="sine";osc.frequency.setValueAtTime(78,now);osc.frequency.exponentialRampToValueAtTime(48,now+.18);
+  gain.gain.setValueAtTime(.0001,now);gain.gain.linearRampToValueAtTime(.16,now+.025);gain.gain.exponentialRampToValueAtTime(.0001,now+.25);
+  osc.connect(gain);gain.connect(master);track(osc);osc.start(now);osc.stop(now+.27);
+}
+function startOcean(){
+  if(!$("ocean").checked||ambientSource||!ctx)return;
+  const length=ctx.sampleRate*3, buffer=ctx.createBuffer(1,length,ctx.sampleRate), channel=buffer.getChannelData(0);
+  for(let i=0;i<length;i++) channel[i]=(Math.random()*2-1)*.45;
+  ambientSource=ctx.createBufferSource();ambientSource.buffer=buffer;ambientSource.loop=true;
+  const low=ctx.createBiquadFilter();low.type="lowpass";low.frequency.value=520;
+  const high=ctx.createBiquadFilter();high.type="highpass";high.frequency.value=90;
+  ambientGain=ctx.createGain();ambientGain.gain.value=.0001;
+  const lfo=ctx.createOscillator(), lfoGain=ctx.createGain();
+  lfo.frequency.value=.12;lfoGain.gain.value=.035;lfo.connect(lfoGain);lfoGain.connect(ambientGain.gain);
+  ambientSource.connect(high);high.connect(low);low.connect(ambientGain);ambientGain.connect(master);
+  ambientSource.start();lfo.start();
+  ambientSource._lfo=lfo;ambientSource._filter=low;
+  ambientGain.gain.setTargetAtTime(.065,ctx.currentTime,.8);
+}
+function stopOcean(){
+  if(ambientSource){try{ambientSource.stop();ambientSource._lfo.stop()}catch(e){}ambientSource=null;ambientGain=null}
+}
+function playStep(){
+  if(!playing)return;
+  display();
+  const [y,a,f]=data[index];
+  pianoNote(f);
+  if(index%2===0)rhythmPulse();
+  index++;
+  if(index>=data.length){clearInterval(timer);timer=null;playing=false;stopOcean();buttons();return}
+}
+function buttons(){
+  $("play").disabled=playing;
+  $("pause").disabled=!playing;
+  $("stop").disabled=(!playing && index===0);
+  $("play").textContent=(index>0&&index<data.length)?"▶ Resume":"▶ Play Ocean Symphony";
+  $("playStatus").textContent=playing?"Ocean Symphony is playing. Current year: "+data[Math.min(index,data.length-1)][0]+".":"Playback is stopped or paused. Current position: "+(index+1)+" of "+data.length+".";
+}
+async function play(){
+  makeAudio();await ctx.resume();
+  if(index>=data.length)index=0;
+  playing=true;
+  startOcean();
+  playStep();
+  timer=setInterval(playStep,720);
+  buttons();
+}
+function pause(){
+  if(!playing)return;
+  playing=false;clearInterval(timer);timer=null;stopOcean();buttons();
+}
+function stop(){
+  playing=false;clearInterval(timer);timer=null;stopOcean();
+  activeNodes.forEach(n=>{try{n.stop()}catch(e){}});activeNodes.clear();
+  index=0;display();buttons();
+}
+$("play").addEventListener("click",play);
+$("pause").addEventListener("click",pause);
+$("stop").addEventListener("click",stop);
+$("readData").addEventListener("click",()=>{
+  if(!('speechSynthesis' in window)){ $("playStatus").textContent="Spoken description is not supported by this browser."; return; }
+  const [y,a,f]=data[index];
+  window.speechSynthesis.cancel();
+  const utterance=new SpeechSynthesisUtterance(`Year ${y}. Temperature anomaly plus ${a.toFixed(2)} degrees Celsius. Mapped musical pitch ${f} hertz. The piano note represents the mapped data. The ocean atmosphere and rhythm are generated sounds.`);
+  utterance.lang='en-AU'; window.speechSynthesis.speak(utterance);
+});
+$("stopSpeech").addEventListener("click",()=>{if('speechSynthesis' in window)window.speechSynthesis.cancel();});
+window.addEventListener('beforeunload',()=>{if('speechSynthesis' in window)window.speechSynthesis.cancel();});
+$("yearSlider").addEventListener("input",e=>{
+  if(playing)pause();
+  index=Number(e.target.value);display();buttons();
+});
+$("ocean").addEventListener("change",()=>{if(playing){if($("ocean").checked)startOcean();else stopOcean()}});
+display();buttons();
+</script>
+</body>
+</html>
